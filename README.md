@@ -6,7 +6,8 @@
 
 <br/>
 
-> [**InterHub: A Naturalistic Trajectory Dataset with Dense Interaction for Autonomous Driving**](https://arxiv.org/abs/2411.18302)  <br>
+> [**InterHub: A Naturalistic Trajectory Dataset with Dense Interaction for Autonomous Driving**](https://www.nature.com/articles/s41597-025-05344-7)  <br>
+> Published in *Scientific Data*  <br>
 > [Xiyan Jiang](https://tops.tongji.edu.cn/info/1161/2143.htm)<sup>1</sup>, [Xiaocong Zhao](https://zxc-tju.github.io/)<sup>1,\*</sup>, [Yiru Liu](https://tops.tongji.edu.cn/info/1131/1810.htm)<sup>1</sup>, [Zirui Li](https://lzrbit.github.io/)<sup>2</sup>, [Peng Hang](https://tops.tongji.edu.cn/info/1031/1383.htm)<sup>1</sup>, Lu Xiong<sup>1</sup>, and [Jian Sun](https://tops.tongji.edu.cn/info/1031/1187.htm)<sup>1,\*</sup>  <br>
 > <sup>1</sup> Tongji University, <sup>2</sup> Beijing Institute of Technology
 <br>
@@ -59,6 +60,7 @@ For the full dataset information, please refer to [Dataset Information](dataset.
 
 ## To Do
 - [ ] Supplementary material, video, slides
+- [x] Our paper published in _Scientific Data_ 20250701
 - [x] Supplementary code of the interactive label 20250410
 - [x] Preprint paper release 20241128
 - [x] Visualization scripts 20241106
