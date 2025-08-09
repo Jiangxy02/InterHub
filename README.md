@@ -177,12 +177,18 @@ The use of trajdata code in this project is in accordance with their original li
 If you find this repository useful for your research, please consider giving us a star 🌟 and citing our paper.
 
 ```bibtex
-@article{jiang2024interhub,
-  title={InterHub: A Naturalistic Trajectory Dataset with Dense Interaction for Autonomous Driving},
-  author={Jiang, Xiyan and Zhao, Xiaocong and Liu, Yiru and Li, Zirui and Hang, Peng and Xiong, Lu and Sun, Jian},
-  journal={arXiv preprint arXiv:2411.18302},
-  year={2024},
-  doi={10.48550/arXiv.2411.18302}
+
+@article{jiang_naturalistic_2025,
+	title = {A naturalistic trajectory dataset with dense interaction for autonomous driving},
+	volume = {12},
+	issn = {2052-4463},
+	url = {https://doi.org/10.1038/s41597-025-05344-7},
+	doi = {10.1038/s41597-025-05344-7},
+	journal = {Scientific Data},
+	author = {Jiang, Xiyan and Zhao, Xiaocong and Liu, Yiru and Li, Zirui and Hang, Peng and Xiong, Lu and Sun, Jian},
+	month = jul,
+	year = {2025},
+	pages = {1084},
 }
 
 
