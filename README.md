@@ -19,6 +19,12 @@ This repo is intended to serve as a starting point for driving-interaction-relat
 |--------------------------------------|--------------------------------------|
 | ![Teaser GIF 3](image/teaser_3.gif) | ![Teaser GIF 4](image/teaser_4.gif) |
 
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=OxOpcXYZkEo">
+    <img src="image/video_cover.jpg" alt="InterHub Demo Video" width="600">
+  </a>
+  
+</div>
 
 ## Roadmap
 
