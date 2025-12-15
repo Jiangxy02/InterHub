@@ -60,6 +60,8 @@ For the full dataset information, please refer to [Dataset Information](dataset.
 
 ## To Do
 - [ ] Supplementary material, video, slides
+- [ ] Update `all_results.csv` with traceability for other datasets
+- [x] Update `all_results.csv` with nuplan traceability to original dataset 20251215
 - [x] Our paper published in _Scientific Data_ 20250701
 - [x] Supplementary code of the interactive label 20250410
 - [x] Preprint paper release 20241128
