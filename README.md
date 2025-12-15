@@ -19,6 +19,12 @@ This repo is intended to serve as a starting point for driving-interaction-relat
 |--------------------------------------|--------------------------------------|
 | ![Teaser GIF 3](image/teaser_3.gif) | ![Teaser GIF 4](image/teaser_4.gif) |
 
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=OxOpcXYZkEo">
+    <img src="image/video_cover.jpg" alt="InterHub Demo Video" width="600">
+  </a>
+  
+</div>
 
 ## Roadmap
 
@@ -60,6 +66,8 @@ For the full dataset information, please refer to [Dataset Information](dataset.
 
 ## To Do
 - [ ] Supplementary material, video, slides
+- [ ] Update `all_results.csv` with traceability for other datasets
+- [x] Update `all_results.csv` with nuplan traceability to original dataset 20251215
 - [x] Our paper published in _Scientific Data_ 20250701
 - [x] Supplementary code of the interactive label 20250410
 - [x] Preprint paper release 20241128
