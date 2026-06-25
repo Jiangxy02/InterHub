@@ -448,20 +448,55 @@ class SceneProcessor:
         valid_indices = np.any(track != 0, axis=1)
         filtered_track = track[valid_indices]
 
-        if filtered_track.shape[0] < 2:
-            # Return if there are fewer than 2 valid points
+        trajectory_points = filtered_track
+        if additional_trajectory is not None:
+            trajectory_points = self.concatenate_trajectory_points(
+                trajectory_points, np.asarray(additional_trajectory)
+            )
+
+        if trajectory_points.shape[0] < 2 or np.unique(trajectory_points, axis=0).shape[0] < 2:
+            # Return if there are fewer than 2 usable points after appending any extension.
             return {'line': None, 'velocity': 0}
 
-        # Create a LineString object from the filtered track points
-        line = LineString(filtered_track)
-        if additional_trajectory is not None and len(additional_trajectory) >= 2:
-            line = self.concatenate_trajectory(line, np.asarray(additional_trajectory))
+        line = LineString(trajectory_points)
 
         # Calculate the velocity of the vehicle
         v_x, v_y = all_tracks[track_id_index, timestamp_index, v_index]
         v = np.sqrt(v_x ** 2 + v_y ** 2)
 
         return {'line': line, 'velocity': v}
+
+    def concatenate_trajectory_points(
+        self, original_points: np.ndarray, additional_trajectory: np.ndarray
+    ) -> np.ndarray:
+        """Concatenate observed trajectory points with additional trajectory points.
+
+        Args:
+            original_points (np.ndarray): Observed trajectory points.
+            additional_trajectory (np.ndarray): Additional trajectory points.
+
+        Returns:
+            np.ndarray: The concatenated x/y trajectory points.
+        """
+        original_coords = np.asarray(original_points)
+        if original_coords.size == 0:
+            original_coords = np.empty((0, 2))
+        else:
+            original_coords = np.atleast_2d(original_coords)[:, :2]
+
+        additional_coords = np.asarray(additional_trajectory)
+        if additional_coords.size == 0:
+            return original_coords
+
+        additional_coords = np.atleast_2d(additional_coords)[:, :2]
+        if original_coords.shape[0] == 0:
+            return additional_coords
+
+        if additional_coords.shape[0] and np.allclose(additional_coords[0], original_coords[-1]):
+            additional_coords = additional_coords[1:]
+        if additional_coords.shape[0] == 0:
+            return original_coords
+        return np.vstack([original_coords, additional_coords])
 
     def concatenate_trajectory(self, original_line: LineString, additional_trajectory: np.ndarray) -> LineString:
         """Concatenate the original line with additional trajectory points.
@@ -473,18 +508,11 @@ class SceneProcessor:
         Returns:
             LineString: The concatenated LineString.
         """
-        if additional_trajectory.shape[0] == 0:
+        concatenated_coords = self.concatenate_trajectory_points(
+            np.array(original_line.coords), additional_trajectory
+        )
+        if concatenated_coords.shape[0] < 2 or np.unique(concatenated_coords, axis=0).shape[0] < 2:
             return original_line
-
-        # Combine the original line and additional trajectory points into one LineString.
-        additional_trajectory = additional_trajectory[:, :2]  # Take only the first two dimensions (x, y)
-        original_coords = np.array(original_line.coords)
-        additional_coords = np.array(additional_trajectory)
-        if additional_coords.shape[0] and np.allclose(additional_coords[0], original_coords[-1]):
-            additional_coords = additional_coords[1:]
-        if additional_coords.shape[0] == 0:
-            return original_line
-        concatenated_coords = np.vstack([original_coords, additional_coords])
         return LineString(concatenated_coords)
 
     def get_downstream_lane_ids(self, lane_id: int, vec_map: VectorMap, max_upstream_lanes: int = 3) -> List[int]:
@@ -642,10 +670,6 @@ class SceneProcessor:
         if len(lanes[1]):
             complete_lane = self.get_complete_lane(x, y, h, lanes[0], lanes[1], vec_map, lane_id)
             trajectory = self.extract_path_from_current_position(x, y, complete_lane, distance)
-
-        # If the trajectory has only one point, it is insufficient and reset it to an empty list
-        if len(trajectory) == 1:
-            trajectory = []
 
         return trajectory, future_time, x, y, complete_lane, speed, distance
 
