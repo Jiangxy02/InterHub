@@ -236,7 +236,8 @@ def repair_duplicate_errors(checked: pd.DataFrame) -> Tuple[pd.DataFrame, List[D
         if col not in checked.columns:
             checked[col] = pd.NA
 
-    key_cols = ["track_id", "start", "end", "intensity", "PET"]
+    scene_key_cols = ["dataset", "folder", "scenario_idx"]
+    key_cols = scene_key_cols + ["track_id", "start", "end", "intensity", "PET"]
     if any(col not in checked.columns for col in key_cols):
         return checked, []
 

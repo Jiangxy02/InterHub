@@ -174,7 +174,9 @@ class SceneProcessor:
                     max_downstream_lane_ids = self.get_downstream_lane_ids(max_lane_id, self.vec_map, 3)
                 lanes = [max_lane_id, max_downstream_lane_ids]
 
-                trajectory, _, _, _, _, _, _ = self.process_vehicle_tracks(track_idx, timeindex, lanes)
+                trajectory, _, _, _, _, _, _ = self.process_vehicle_tracks(
+                    track_idx, timeindex, lanes, extension_seed_index=last_nonzero_index
+                )
 
                 map_processed_data[timestamp][agent_id] = self.process_tracks(
                     self.agent_states, track_idx, timeindex, self.timerange,
@@ -472,14 +474,18 @@ class SceneProcessor:
             LineString: The concatenated LineString.
         """
         if additional_trajectory.shape[0] == 0:
-            return LineString(additional_trajectory)
-        else:
-            # Combine the original line and additional trajectory points into one LineString
-            additional_trajectory = additional_trajectory[:, :2]  # Take only the first two dimensions (x, y)
-            original_coords = np.array(original_line.coords)
-            additional_coords = np.array(additional_trajectory)
-            concatenated_coords = np.vstack([original_coords, additional_coords])
-            return LineString(concatenated_coords)
+            return original_line
+
+        # Combine the original line and additional trajectory points into one LineString.
+        additional_trajectory = additional_trajectory[:, :2]  # Take only the first two dimensions (x, y)
+        original_coords = np.array(original_line.coords)
+        additional_coords = np.array(additional_trajectory)
+        if additional_coords.shape[0] and np.allclose(additional_coords[0], original_coords[-1]):
+            additional_coords = additional_coords[1:]
+        if additional_coords.shape[0] == 0:
+            return original_line
+        concatenated_coords = np.vstack([original_coords, additional_coords])
+        return LineString(concatenated_coords)
 
     def get_downstream_lane_ids(self, lane_id: int, vec_map: VectorMap, max_upstream_lanes: int = 3) -> List[int]:
         """Retrieve downstream lane IDs up to a maximum number of lanes.
@@ -570,7 +576,13 @@ class SceneProcessor:
         return np.array(extracted_points)
 
 
-    def process_vehicle_tracks(self, track_id_index: int, timestamp_index: int, lanes: List) -> Tuple:
+    def process_vehicle_tracks(
+        self,
+        track_id_index: int,
+        timestamp_index: int,
+        lanes: List,
+        extension_seed_index: Optional[int] = None,
+    ) -> Tuple:
         """Process the vehicle's track to generate future trajectory and related information.
 
         Args:
@@ -578,15 +590,16 @@ class SceneProcessor:
             timestamp_index (int): The current timestamp index within the tracks.
             lanes (List): List containing the current lane and downstream lanes for the vehicle. 
                         The first element is the current lane ID, and the second element is a list of downstream lane IDs.
+            extension_seed_index (Optional[int]): Track index whose pose seeds the extrapolated lane trajectory.
 
         Returns:
             Tuple: A tuple containing:
                 - trajectory (List): Future trajectory points.
                 - future_time (float): The computed future time based on speed.
-                - x (float): X-coordinate of the vehicle's current position.
-                - y (float): Y-coordinate of the vehicle's current position.
+                - x (float): X-coordinate of the vehicle's extension seed position.
+                - y (float): Y-coordinate of the vehicle's extension seed position.
                 - complete_lane (List): The complete lane composed of current and downstream lanes.
-                - speed (float): The speed of the vehicle at the current timestamp.
+                - speed (float): The speed of the vehicle at the extension seed timestamp.
                 - distance (float): The computed distance the vehicle will travel in the future time.
         """
 
@@ -597,13 +610,16 @@ class SceneProcessor:
         vec_map = self.vec_map
         lanes = lanes
         lane_id = self.lane_id
-        # Extract the current x, y coordinates, velocities (vx, vy), and heading angle (h)
+        if extension_seed_index is None:
+            extension_seed_index = timestamp_index
+
+        # Extract the extension seed pose, velocities (vx, vy), and heading angle (h).
         x, y, vx, vy, h = (
-            all_tracks[track_id_index, timestamp_index, column_dict['x']],
-            all_tracks[track_id_index, timestamp_index, column_dict['y']],
-            all_tracks[track_id_index, timestamp_index, column_dict['vx']],
-            all_tracks[track_id_index, timestamp_index, column_dict['vy']],
-            all_tracks[track_id_index, timestamp_index, column_dict['heading']]
+            all_tracks[track_id_index, extension_seed_index, column_dict['x']],
+            all_tracks[track_id_index, extension_seed_index, column_dict['y']],
+            all_tracks[track_id_index, extension_seed_index, column_dict['vx']],
+            all_tracks[track_id_index, extension_seed_index, column_dict['vy']],
+            all_tracks[track_id_index, extension_seed_index, column_dict['heading']]
         )
         
         # Calculate the speed of the vehicle based on its velocity components
